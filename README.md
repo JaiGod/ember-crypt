@@ -20,6 +20,30 @@
 > Gather **embers**, light **braziers**, find the stairs, and survive to the **Ashen King** on floor 10.
 > **Death is permanent.**
 
+## 📸 Screenshots
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/title.jpg" alt="Ember Crypt title screen"><br><sub><b>Title screen</b>: torchlit arch and drifting embers</sub></td>
+<td width="50%"><img src="docs/screenshots/combat.jpg" alt="Combat on floor 3"><br><sub><b>Floor 3</b>: Ember Oozes swarm you in the torchlight</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/boss.jpg" alt="The Cinder Warden boss"><br><sub><b>The Cinder Warden</b>: the floor 5 boss fight</sub></td>
+<td><img src="docs/screenshots/game-over.jpg" alt="Run summary screen"><br><sub><b>Permadeath</b>: the run summary and saved best score</sub></td>
+</tr>
+</table>
+
+<p align="center"><img src="docs/screenshots/mobile.jpg" alt="Ember Crypt on a phone" width="260"><br><sub><b>Phone (390×844)</b>: portrait mode with the virtual stick, ATK and DASH buttons</sub></p>
+
+## 🔗 Links
+
+- ▶ **Play in browser:** [jaigod.github.io/ember-crypt/play/](https://jaigod.github.io/ember-crypt/play/)
+- 🏠 **Landing page:** [jaigod.github.io/ember-crypt](https://jaigod.github.io/ember-crypt/)
+- 📦 **Android APK:** [Releases](https://github.com/JaiGod/ember-crypt/releases) (debug build from CI)
+- ⚙️ **CI runs:** [Actions](https://github.com/JaiGod/ember-crypt/actions/workflows/deploy.yml)
+- 🧩 **Source:** [`game.gd`](game.gd) · [`gen.gd`](gen.gd) · [`hud.gd`](hud.gd) · [`sfx.gd`](sfx.gd) · [`site/`](site/) · [workflow](.github/workflows/deploy.yml)
+- 🏛️ **More JaiGod games:** [The Hollow Between](https://github.com/JaiGod/the-hollow-between) · [Bloomfolk Gardens](https://github.com/JaiGod/bloomfolk-gardens) · [Bulwark TDS](https://github.com/JaiGod/bulwark-tds) · [Isle of Embers](https://github.com/JaiGod/isle-of-embers) · [all JaiGod repos](https://github.com/orgs/JaiGod/repositories)
+
 ## ✨ Features
 
 | | |
@@ -66,6 +90,7 @@ ember-crypt/
 ├── hud.gd                 # HUD, menus, upgrade cards, summary, touch controls, minimap
 ├── sfx.gd                 # synthesised sound effects
 ├── site/index.html        # landing page (the Web export goes in /play/)
+├── docs/screenshots/      # README screenshots
 └── .github/workflows/deploy.yml
 ```
 
@@ -77,7 +102,7 @@ ember-crypt/
 4. Headless smoke test: `godot --headless --fixed-fps 60 --quit-after 60000 -- --smoke`. It prints `SMOKE OK` when the bot finishes a full run.
 5. Web build: `godot --headless --export-release "Web" build/play/index.html`, copy `site/index.html` to `build/`, then serve `build/` with `python3 -m http.server`.
 
-Dev hook: `.../play/?floor=5` starts a run directly on floor 5 (useful for testing bosses).
+Dev hooks: `.../play/?floor=5` starts a run directly on floor 5 (useful for testing bosses). Add `&demo=1` to turn on an auto-pilot that fights the nearest enemy, and `&shots=2,4` to save JPEG captures into `window.__shots`.
 
 ## 📓 Development log
 
@@ -98,6 +123,10 @@ Dev hook: `.../play/?floor=5` starts a run directly on floor 5 (useful for testi
 **Mobile.** Touch emulation of the mouse is off, so taps and clicks share one button hit-test path (`g.buttons`, rebuilt every HUD draw). Portrait phones switch the base resolution to 360×480 and zoom the camera in so the pixels stay chunky. Upgrade cards size themselves to the screen width.
 
 **Testing.** I used Playwright on the local Web export at 960×540 and at 390×844 with real touch events. That meant zero console errors and no horizontal scroll on the landing page. The headless soak script cycled every weapon through floors 2–10 against live AI.
+
+**Screenshots.** I added two web-only dev hooks so the screenshots show real fights instead of an empty room. `?demo=1` is an auto-pilot. It pulls a few enemies into the spawn room, or puts you in front of the boss, then steers and attacks through the touch auto-aim path. `?shots=1.5,3` makes the game grab its own viewport at those times (`get_viewport().get_texture().get_image()` → `save_jpg_to_buffer`) and hand the JPEG to the page through `JavaScriptBridge`. All the README shots come from the live GitHub Pages build.
+
+**Beta tested on the live site ✅ (2026-11-05).** I ran https://jaigod.github.io/ember-crypt/play/ in the browser. The engine got past the loading bar and the title screen rendered. I started a run from the keyboard and played for about 90 seconds of moving, attacking, dashing and restarting. There were no console errors and the canvas was never blank. The landing page has no horizontal scroll at 390 px. CI is green: smoke-test bot, Web export to Pages, and the Android APK on the `v1.0.0` release.
 
 ## 🗺️ Ideas for later
 - Endless mode past floor 10, plus a daily seed
