@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ember Crypt · a torchlit roguelike</title>
+<meta name="description" content="Ember Crypt: an original top-down pixel roguelike made in Godot 4. Your torch burns down, the crypt shifts every run, and death is permanent.">
+<meta name="theme-color" content="#0b0708">
+<style>
+:root{--bg:#0b0708;--ink:#f4e6d2;--dim:#b49e8c;--ember:#ff9430;--gold:#ffd65c;--panel:#160e0e;--line:#4a2e22}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden}
+canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+main{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:0 16px 48px}
+header{min-height:86vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;padding-top:24px}
+.kicker{letter-spacing:.3em;text-transform:uppercase;font-size:12px;color:var(--dim)}
+h1{margin:0;font:900 clamp(44px,12vw,104px)/0.95 "Trebuchet MS",Georgia,serif;letter-spacing:.04em;
+  background:linear-gradient(180deg,#ffe9a8 0%,#ff9a3a 45%,#c1361a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 22px rgba(255,120,30,.45));animation:flick 3.2s infinite}
+@keyframes flick{0%,100%{filter:drop-shadow(0 0 22px rgba(255,120,30,.45))}45%{filter:drop-shadow(0 0 34px rgba(255,150,40,.6))}50%{filter:drop-shadow(0 0 16px rgba(255,100,20,.35))}}
+.tag{max-width:560px;color:var(--dim);margin:0}
+.play{display:inline-flex;align-items:center;gap:12px;margin-top:10px;padding:18px 38px;border-radius:14px;text-decoration:none;color:#1b0b05;
+  font:800 22px/1 system-ui,sans-serif;letter-spacing:.04em;background:linear-gradient(180deg,#ffd76a,#ff8a2a 60%,#e4561c);
+  box-shadow:0 0 0 2px #ffb45a inset,0 10px 40px rgba(255,110,30,.45);transition:transform .15s ease,box-shadow .15s ease}
+.play:hover,.play:focus-visible{transform:translateY(-2px) scale(1.03);box-shadow:0 0 0 2px #ffe3a0 inset,0 14px 54px rgba(255,130,40,.65)}
+.play svg{width:22px;height:22px}
+.sub{font-size:13px;color:var(--dim)}
+section{margin-top:28px;background:linear-gradient(180deg,rgba(28,17,16,.92),rgba(18,11,11,.92));border:1px solid var(--line);border-radius:16px;padding:22px}
+h2{margin:0 0 12px;font:800 20px/1.2 "Trebuchet MS",Georgia,serif;color:var(--gold);letter-spacing:.06em;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.card{background:rgba(0,0,0,.25);border:1px solid #3a241b;border-radius:12px;padding:14px}
+.card b{display:block;color:var(--ember);margin-bottom:4px}
+.card p{margin:0;color:var(--dim);font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+td{padding:8px 6px;border-bottom:1px solid #2c1c16;vertical-align:top}
+td:first-child{color:var(--gold);white-space:nowrap;width:30%}
+kbd{display:inline-block;padding:1px 7px;border:1px solid #6a4a38;border-bottom-width:3px;border-radius:6px;background:#211513;font:600 13px/1.4 ui-monospace,monospace;color:var(--ink)}
+.foes{display:flex;flex-wrap:wrap;gap:8px}
+.foe{padding:6px 12px;border-radius:999px;background:#1f1311;border:1px solid #4b2c20;font-size:14px}
+.foe i{font-style:normal;color:var(--ember)}
+footer{text-align:center;color:var(--dim);font-size:13px;margin-top:36px}
+footer a{color:var(--gold)}
+@media (max-width:480px){section{padding:16px}td:first-child{width:auto}.play{padding:16px 28px;font-size:20px}}
+@media (prefers-reduced-motion:reduce){h1{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<main>
+  <header>
+    <div class="kicker">A Godot 4 roguelike · JaiGod</div>
+    <h1>EMBER CRYPT</h1>
+    <p class="tag">Descend a crypt that rebuilds itself every run. Your torch is your life clock: it burns down as you explore, and in the dark the crypt bites back. Gather embers, light braziers, swap weapons, and face a boss every fifth floor. Death is permanent.</p>
+    <a class="play" href="play/" id="playBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 4l15 8-15 8z"/></svg>Play in browser</a>
+    <div class="sub">Free · no install · keyboard, mouse or touch · around 20 MB first load</div>
+  </header>
+
+  <section>
+    <h2>Features</h2>
+    <div class="grid">
+      <div class="card"><b>Procedural floors</b><p>Rooms and corridors are generated from scratch, with pillars, loops and a fresh layout every floor.</p></div>
+      <div class="card"><b>Torch-light radius</b><p>Light shrinks as your fuel burns. Embers refill it, braziers rekindle it, and with no fuel you take damage.</p></div>
+      <div class="card"><b>Melee and dash</b><p>Swing, slash or thrust with hit-stop and knockback, and dash through attacks with brief invulnerability.</p></div>
+      <div class="card"><b>Four weapons</b><p>Ember Sword, Cleaver Axe, Bone Spear and Cinder Wand, each with its own arc, reach and rhythm.</p></div>
+      <div class="card"><b>Blessings</b><p>Pick one of three upgrades between floors: max HP, damage, fuel, speed, sparks, lifesteal and more.</p></div>
+      <div class="card"><b>Bosses and permadeath</b><p>The Cinder Warden waits on floor 5 and the Ashen King on floor 10. Every run ends with a summary of how it went.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Denizens of the crypt</h2>
+    <div class="foes">
+      <span class="foe"><i>Skitter</i>: fast, erratic swarmer</span>
+      <span class="foe"><i>Ember Ooze</i>: hops, splits in two</span>
+      <span class="foe"><i>Bone Knight</i>: telegraphed lunge</span>
+      <span class="foe"><i>Wisp</i>: keeps distance, fires orbs</span>
+      <span class="foe"><i>Shade</i>: blinks behind you, steals fuel</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Controls</h2>
+    <table>
+      <tr><td>Move</td><td><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrow keys · left thumb-stick on touch</td></tr>
+      <tr><td>Attack</td><td>Left click or <kbd>J</kbd> (aim with the mouse) · ATK button (auto-aim)</td></tr>
+      <tr><td>Dash</td><td><kbd>Space</kbd> / <kbd>Shift</kbd> / right click · DASH button</td></tr>
+      <tr><td>Pause</td><td><kbd>Esc</kbd> or <kbd>P</kbd> · pause icon</td></tr>
+      <tr><td>Sound / map</td><td><kbd>M</kbd> toggles sound · <kbd>Tab</kbd> toggles the minimap</td></tr>
+      <tr><td>Blessings</td><td><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> or tap a card</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>Made with</h2>
+    <p style="margin:0;color:var(--dim)">Godot 4.3 and GDScript. Every sprite, tile and effect is drawn in code with <code>_draw()</code>, and every sound is synthesised into PCM at startup. The game uses no image or audio files. The Web build is exported by GitHub Actions (godot-ci) and deployed to GitHub Pages.</p>
+  </section>
+
+  <footer>Made by Jaineil Rana (JaKing) · part of <a href="https://github.com/JaiGod">JaiGod</a> · <a href="https://github.com/JaiGod/ember-crypt">source on GitHub</a></footer>
+</main>
+<script>
+(()=>{const c=document.getElementById('fx');const x=c.getContext('2d');let w,h,P=[];
+const rs=()=>{w=c.width=innerWidth;h=c.height=innerHeight};rs();addEventListener('resize',rs);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+for(let i=0;i<70;i++)P.push({x:Math.random(),y:Math.random(),s:Math.random()*2+1,v:Math.random()*0.04+0.02,p:Math.random()*6});
+let t=0;const f=()=>{t+=0.016;x.clearRect(0,0,w,h);
+const g=x.createRadialGradient(w/2,h*0.38,10,w/2,h*0.38,Math.max(w,h)*0.6);
+g.addColorStop(0,'rgba(255,110,30,'+(0.13+0.02*Math.sin(t*9))+')');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,w,h);
+for(const p of P){p.y-=p.v*0.016*(reduce?0:1);if(p.y<-0.02){p.y=1.02;p.x=Math.random()}
+const a=Math.min(1,p.y*1.4)*0.8;x.fillStyle='rgba(255,'+(120+(p.s*30|0))+',40,'+a+')';x.fillRect(p.x*w+Math.sin(t+p.p)*8,p.y*h,p.s,p.s)}
+requestAnimationFrame(f)};f()})();
+</script>
+</body>
+</html>
