@@ -170,6 +170,8 @@ var show_map := true
 var smoke := false
 var smoke_t := 0.0
 var smoke_phase := 0
+var demo := false  # web dev hook (?demo=1): auto-pilot used for README screenshots
+var shot_times: Array = []  # web dev hook (?shots=2,5): capture JPEGs into window.__shots
 
 
 func _ready() -> void:
@@ -183,11 +185,26 @@ func _ready() -> void:
 		print("[smoke] starting")
 	# dev hook for testing the web build: ?floor=N starts a run on floor N
 	if OS.has_feature("web"):
+		var st = JavaScriptBridge.eval("new URLSearchParams(location.search).get('shots') || ''")
+		if st is String:
+			for t in String(st).split(",", false):
+				if t.is_valid_float():
+					shot_times.append(float(t))
 		var q = JavaScriptBridge.eval("new URLSearchParams(location.search).get('floor') || ''")
 		if q is String and String(q).is_valid_int():
 			new_run()
 			floor_n = clampi(int(q), 1, FINAL_FLOOR)
 			build_floor()
+			if JavaScriptBridge.eval("new URLSearchParams(location.search).get('demo') || ''") == "1":
+				demo = true
+				if boss != null:
+					p_pos = room_center(rooms[1]) + Vector2(0, 5 * T)
+				else:
+					for i in mini(5, enemies.size()):
+						enemies[i].pos = rand_floor_in(rooms[0])
+					inv_t = 3.0
+				cam.position = p_pos
+				cam.reset_smoothing()
 
 
 # ---------------------------------------------------------------- save
@@ -637,6 +654,11 @@ func _process(delta: float) -> void:
 		cam.zoom = Vector2(1.6, 1.6) if want.y > want.x else Vector2(1.3, 1.3)
 	if smoke:
 		smoke_step(dt)
+	elif demo and state == St.PLAY:
+		demo_step()
+	if not shot_times.is_empty() and time >= float(shot_times[0]):
+		shot_times.pop_front()
+		capture_shot()
 	if state == St.PLAY:
 		if hitstop > 0.0:
 			hitstop -= dt
@@ -1268,6 +1290,33 @@ func hash2(x: int, y: int) -> int:
 	var h := (x * 374761393 + y * 668265263 + floor_n * 2246822519) & 0x7fffffff
 	h = ((h ^ (h >> 13)) * 1274126177) & 0x7fffffff
 	return h
+
+
+# ---------------------------------------------------------------- dev capture
+func capture_shot() -> void:
+	var img := get_viewport().get_texture().get_image()
+	if img == null or img.is_empty():
+		return
+	if img.get_width() > 900:
+		img.resize(900, int(img.get_height() * 900.0 / img.get_width()), Image.INTERPOLATE_BILINEAR)
+	var b64 := Marshalls.raw_to_base64(img.save_jpg_to_buffer(0.7))
+	JavaScriptBridge.eval("(window.__shots=window.__shots||[]).push('data:image/jpeg;base64,%s')" % b64)
+
+
+# ---------------------------------------------------------------- demo pilot
+func demo_step() -> void:
+	touch_mode = true
+	var best := 1e9
+	var target := p_pos
+	for e in enemies:
+		var d := e.pos.distance_to(p_pos)
+		if d < best:
+			best = d
+			target = e.pos
+	joy_idx = 0
+	joy_vec = (target - p_pos).normalized() if best > 26.0 and best < 1e8 else Vector2.ZERO
+	atk_idx = 0 if best < 48.0 else -1
+	hp = maxi(hp, 2)
 
 
 # ---------------------------------------------------------------- smoke bot
